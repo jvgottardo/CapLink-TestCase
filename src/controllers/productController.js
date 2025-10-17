@@ -3,9 +3,40 @@ import prisma from '../config/db.js';
 export const productController = {
   //listar produtos
   async getProducts(req, res) {
-    try {
-      const products = await prisma.products.findMany({
-        // where: { active: true },
+  try {
+    // Paginação
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Filtros dinâmicos
+    const { search, category, minPrice, maxPrice, active } = req.query;
+
+    // Monta o objeto "where" dinamicamente
+    const where = {};
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { brand: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (category) where.category = category;
+    if (active !== undefined) where.active = active === 'true';
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    // Busca + paginação
+    const [products, total] = await Promise.all([
+      prisma.products.findMany({
+        where,
+        skip,
+        take: limit,
         select: {
           product_id: true,
           name: true,
@@ -18,21 +49,32 @@ export const productController = {
           quantity: true,
           category: true,
           users: {
-            // o relacionamento com o vendedor
             select: {
               user_id: true,
               name: true,
             },
           },
         },
-        orderBy: { created_at: 'desc' }, // opcional: mostrar os mais recentes primeiro
-      });
+        orderBy: { created_at: 'desc' },
+      }),
 
-      res.json({ products });
-    } catch (error) {
-      res.status(500).json({ error: 'Erro no servidor' });
-    }
-  },
+      prisma.products.count({ where }),
+    ]);
+
+    res.json({
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      filters: { search, category, minPrice, maxPrice, active },
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro no servidor' });
+  }
+},
+
 
   //listar produtos ativos
   async getProductsActive(req, res) {
@@ -145,6 +187,54 @@ export const productController = {
       res.status(500).json({ error: 'Erro no servidor' });
     }
   },
+
+  async getProductsByUser(req, res) {
+  try {
+    const userId = req.user.userId; // ID do vendedor logado
+
+    // parâmetros de paginação
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // total de produtos do vendedor
+    const totalProducts = await prisma.products.count({
+      where: { user_id: userId },
+    });
+
+    // buscar produtos do vendedor com paginação
+    const products = await prisma.products.findMany({
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' },
+      skip,
+      take: limit,
+      select: {
+        product_id: true,
+        name: true,
+        description: true,
+        price: true,
+        image_url: true,
+        category: true,
+        brand: true,
+        quantity: true,
+        published_at: true,
+        active: true,
+        created_at: true,
+      },
+    });
+
+    res.json({
+      total: totalProducts,
+      page,
+      totalPages: Math.ceil(totalProducts / limit),
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro no servidor ao buscar produtos do vendedor' });
+  }
+},
+
 
   //cadastrar produto via csv
   async addProductsViaCSV(req, res) {

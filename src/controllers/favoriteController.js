@@ -2,43 +2,63 @@ import prisma from '../config/db.js';
 
 export const favoriteController = {
   //listar favoritos
-  async getFavorites(req, res) {
-    try {
-      const favorites = await prisma.favorites.findMany({
-        select: {
-          favorite_id: true,
-          user_id: true,
-          product_id: true,
-          products: {
-            // o relacionamento com o produto
-            select: {
-              product_id: true,
-              name: true,
-              description: true,
-              price: true,
-              image_url: true,
-              published_at: true,
-              active: true,
-              brand: true,
-              quantity: true,
-              category: true,
-              users: {
-                // o relacionamento com o vendedor
-                select: {
-                  user_id: true,
-                  name: true,
-                },
+ async getFavorites(req, res) {
+  try {
+    const userId = req.user.userId;
+
+    // parâmetros de paginação (com valores padrão)
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // total de favoritos do usuário
+    const totalFavorites = await prisma.favorites.count({
+      where: { user_id: userId },
+    });
+
+    const favorites = await prisma.favorites.findMany({
+      where: { user_id: userId },
+      select: {
+        favorite_id: true,
+        user_id: true,
+        product_id: true,
+        products: {
+          select: {
+            product_id: true,
+            name: true,
+            description: true,
+            price: true,
+            image_url: true,
+            published_at: true,
+            active: true,
+            brand: true,
+            quantity: true,
+            category: true,
+            users: {
+              select: {
+                user_id: true,
+                name: true,
               },
             },
           },
         },
-        orderBy: { created_at: 'desc' }, // opcional: mostrar os mais recentes primeiro
-      });
-      res.json({ favorites });
-    } catch (error) {
-      res.status(500).json({ error: 'Erro no servidor' });
-    }
-  },
+      },
+      orderBy: { created_at: 'desc' },
+      skip,
+      take: limit,
+    });
+
+    res.json({
+      total: totalFavorites,
+      page,
+      totalPages: Math.ceil(totalFavorites / limit),
+      favorites,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro no servidor ao buscar favoritos' });
+  }
+},
 
   //cadastrar lista de favoritos
   async addFavorite(req, res) {

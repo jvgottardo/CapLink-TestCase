@@ -80,34 +80,41 @@ async getOrders(req, res) {
   try {
     const userId = req.user.userId;
 
-    const orders = await prisma.orders.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' },
-      include: {
-        order_items: {
-          include: {
-            products: {
-              select: {
-                product_id: true,
-                name: true,
-                description: true,
-                price: true,
-                image_url: true,
-                category: true,
-                brand: true,
-                quantity: true,
+    // Paginação
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    // Busca paginada
+    const [orders, total] = await Promise.all([
+      prisma.orders.findMany({
+        where: { user_id: userId },
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          order_items: {
+            include: {
+              products: {
+                select: {
+                  product_id: true,
+                  name: true,
+                  description: true,
+                  price: true,
+                  image_url: true,
+                  category: true,
+                  brand: true,
+                  quantity: true,
+                }
               }
             }
           }
         }
-      }
-    });
+      }),
+      prisma.orders.count({ where: { user_id: userId } })
+    ]);
 
-    if (!orders || orders.length === 0) {
-      return res.json({ message: 'Nenhum pedido encontrado', orders: [] });
-    }
-
-    // Retornar total e itens
+    // Formata os pedidos
     const formattedOrders = orders.map(order => ({
       order_id: order.order_id,
       total: order.total,
@@ -116,19 +123,39 @@ async getOrders(req, res) {
         product_id: item.product_id,
         name: item.products.name,
         description: item.products.description,
-        price: item.price, // valor do item na hora da compra
+        price: item.price, // preço do item no momento da compra
         quantity: item.quantity,
         image_url: item.products.image_url,
       }))
     }));
 
-    res.json({ orders: formattedOrders });
+    // Caso não haja pedidos
+    if (!formattedOrders.length) {
+      return res.json({
+        message: 'Nenhum pedido encontrado',
+        page,
+        limit,
+        total: 0,
+        totalPages: 0,
+        orders: []
+      });
+    }
+
+    // Retorna resultado paginado
+    res.json({
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      orders: formattedOrders
+    });
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao buscar pedidos' });
   }
 },
+
 
 //pegar uma order especifica
 async getOrderDetails(req, res) {
