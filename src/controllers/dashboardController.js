@@ -2,15 +2,15 @@
 import prisma from '../config/db.js';
 
 export const dashboardController = {
-
-async getVendorDashboard(req, res) {
+  
+ async getVendorDashboard(req, res) {
   const vendorId = req.user.userId;
 
   try {
     // Total de produtos vendidos
     const totalSoldData = await prisma.order_items.aggregate({
       _sum: { quantity: true },
-      where: { product: { vendor_id: vendorId } },
+      where: { products: { vendor_id: vendorId } },
     });
 
     const totalSold = totalSoldData._sum.quantity || 0;
@@ -18,7 +18,7 @@ async getVendorDashboard(req, res) {
     // Faturamento total
     const totalRevenueData = await prisma.order_items.aggregate({
       _sum: { price: true },
-      where: { product: { vendor_id: vendorId } },
+      where: { products: { vendor_id: vendorId } },
     });
 
     const totalRevenue = totalRevenueData._sum.price || 0;
@@ -32,7 +32,7 @@ async getVendorDashboard(req, res) {
     const bestSelling = await prisma.order_items.groupBy({
       by: ['product_id'],
       _sum: { quantity: true },
-      where: { product: { vendor_id: vendorId } },
+      where: { products: { vendor_id: vendorId } },
       orderBy: { _sum: { quantity: 'desc' } },
       take: 1,
     });
@@ -58,6 +58,4 @@ async getVendorDashboard(req, res) {
     res.status(500).json({ error: 'Erro ao buscar dados do dashboard' });
   }
 }
-
-
 };
