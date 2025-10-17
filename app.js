@@ -3,7 +3,10 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import router from './src/routes/index.js';
 import path from "path";
+import fs from 'fs';
 
+const uploadDir = path.join(process.cwd(), 'uploads/csv');
+fs.mkdirSync(uploadDir, { recursive: true });
 
 const app = express();
 
