@@ -199,7 +199,7 @@ export const productController = {
 
     // total de produtos do vendedor
     const totalProducts = await prisma.products.count({
-      where: { user_id: userId },
+      where: { users_id: userId },
     });
 
     // buscar produtos do vendedor com paginação
