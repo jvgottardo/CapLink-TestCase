@@ -7,6 +7,8 @@ import path from "path";
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
