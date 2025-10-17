@@ -43,16 +43,16 @@ export const dashboardController = {
 
       let bestProduct = null;
       if (bestSelling.length > 0) {
-        bestProduct = await prisma.products.findUnique({
+        const productData = await prisma.products.findUnique({
           where: { product_id: bestSelling[0].product_id },
           select: { name: true, price: true },
         });
-      }
 
-      bestProduct = {
-        ...productData,
-        totalSold: bestSelling[0]._sum.quantity || 0,
-      };
+        bestProduct = {
+          ...productData,
+          totalSold: bestSelling[0]._sum.quantity || 0,
+        };
+      }
 
       res.json({
         totalSold,
@@ -60,7 +60,6 @@ export const dashboardController = {
         productCount,
         bestProduct: bestProduct || null,
       });
-      
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Erro ao buscar dados do dashboard' });
