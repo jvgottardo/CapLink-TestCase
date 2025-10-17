@@ -2,21 +2,26 @@
 import prisma from '../config/db.js';
 
 export const dashboardController = {
-  async getVendorDashboard(req, res) {
-    const vendorId = req.user.id;
+
+async getVendorDashboard(req, res) {
+  const vendorId = req.user.userId;
 
   try {
     // Total de produtos vendidos
-    const totalSold = await prisma.order_items.aggregate({
+    const totalSoldData = await prisma.order_items.aggregate({
       _sum: { quantity: true },
       where: { product: { vendor_id: vendorId } },
     });
 
+    const totalSold = totalSoldData._sum.quantity || 0;
+
     // Faturamento total
-    const totalRevenue = await prisma.order_items.aggregate({
+    const totalRevenueData = await prisma.order_items.aggregate({
       _sum: { price: true },
       where: { product: { vendor_id: vendorId } },
     });
+
+    const totalRevenue = totalRevenueData._sum.price || 0;
 
     // Quantidade de produtos cadastrados
     const productCount = await prisma.products.count({
@@ -32,22 +37,27 @@ export const dashboardController = {
       take: 1,
     });
 
-    const bestProduct = bestSelling.length
-      ? await prisma.products.findUnique({
-          where: { product_id: bestSelling[0].product_id },
-          select: { name: true, price: true },
-        })
-      : null;
+    let bestProduct = null;
+
+    if (bestSelling.length > 0) {
+      bestProduct = await prisma.products.findUnique({
+        where: { product_id: bestSelling[0].product_id },
+        select: { name: true, price: true },
+      });
+    }
 
     res.json({
-      totalSold: totalSold._sum.quantity || 0,
-      totalRevenue: totalRevenue._sum.price || 0,
+      totalSold,
+      totalRevenue,
       productCount,
-      bestProduct,
+      bestProduct: bestProduct || null,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao buscar dados do dashboard' });
   }
-},
+}
+
+
 };

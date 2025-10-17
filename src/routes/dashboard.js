@@ -5,7 +5,7 @@ import { dashboardController } from '../controllers/dashboardController.js';
 const router = express.Router();
 
 // Rotas autenticadas
-router.get('/vendor/vendor_id', authenticate, dashboardController.getVendorDashboard);
+router.get('/vendor', authenticate, dashboardController.getVendorDashboard);
 
 
 export default router;
