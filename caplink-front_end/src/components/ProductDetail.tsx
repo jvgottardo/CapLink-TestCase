@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { addToCart, toggleFavorite } from "../utils/api";
+import { useEffect, useState } from "react";
+import { addToCart, toggleFavorite, removeFavorite, getFavorites } from "../utils/api";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Heart, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
+
 
 interface User {
   name: string;
@@ -21,6 +23,7 @@ interface ProductDetailsProps {
     description?: string;
     price: number;
     image_url?: string;
+    quantity?: number
     vendor?: User; // opcional: se você já retorna o vendedor junto do produto
   };
   user: User;
@@ -30,12 +33,16 @@ interface ProductDetailsProps {
 export default function ProductDetails({ product, user }: ProductDetailsProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [favoriteId, setFavoriteId] = useState<number | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
 
   // Adiciona ao carrinho
   const handleAddToCart = async () => {
     setAddingToCart(true);
     try {
-      await addToCart(product.product_id);
+      await addToCart(product.product_id, quantity);
       toast.success("Produto adicionado ao carrinho!");
     } catch (error) {
       toast.error("Erro ao adicionar ao carrinho.");
@@ -47,21 +54,89 @@ export default function ProductDetails({ product, user }: ProductDetailsProps) {
   // Favoritar ou desfavoritar
   const handleToggleFavorite = async () => {
     try {
-      const res = await toggleFavorite(product.product_id);
-      setIsFavorite(res.isFavorite);
-      toast.success(
-        res.isFavorite
-          ? "Adicionado aos favoritos!"
-          : "Removido dos favoritos!"
-      );
-    } catch {
+      if (isFavorite && favoriteId) {
+        // Se já for favorito, remove usando favoriteId
+        await removeFavorite(favoriteId);
+        setIsFavorite(false);
+        setFavoriteId(null);
+        toast.info("Produto removido dos favoritos!");
+      } else {
+        // Caso não seja favorito, adiciona
+        const res = await toggleFavorite(product.product_id);
+        setIsFavorite(true);
+        // Verifica se o produto já está nos favoritos retornados
+        const favItem = res.favorites?.find(
+          (fav: any) =>
+            fav.product_id === product.product_id ||
+            fav.products?.product_id === product.product_id
+        );
+        if (favItem) {
+          setIsFavorite(true);
+          setFavoriteId(favItem.favorite_id);
+          toast.success("Produto adicionado aos favoritos!");
+        }
+      }
+    } catch (err: any) {
+      console.error("Erro ao atualizar favorito:", err);
       toast.error("Erro ao atualizar favorito.");
     }
   };
 
+  useEffect(() => {
+    const checkIfFavorite = async () => {
+      try {
+        const res = await getFavorites();
+        const favItem = res.favorites?.find(
+          (fav: any) =>
+            fav.product_id === product.product_id ||
+            fav.products?.product_id === product.product_id
+        );
+        if (favItem) {
+          setIsFavorite(true);
+          setFavoriteId(favItem.favorite_id);
+        }
+      } catch (err) {
+        console.error("Erro ao verificar favorito:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkIfFavorite();
+  }, [product.product_id]);
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Skeleton da imagem */}
+        <div className="w-full h-96 bg-gray-200 animate-pulse rounded-lg" />
+        {/* Skeleton do conteúdo */}
+        <div className="space-y-4">
+          <div className="h-8 w-3/4 bg-gray-200 animate-pulse rounded" />
+          <div className="h-6 w-1/2 bg-gray-200 animate-pulse rounded" />
+          <div className="h-6 w-1/4 bg-gray-200 animate-pulse rounded" />
+          <div className="h-12 w-full bg-gray-200 animate-pulse rounded" />
+          <div className="h-8 w-1/2 bg-gray-200 animate-pulse rounded mt-4" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen py-10">
+
+      {/* botao de boltar  */}
+      <div className="px-8 flex flex-col gap-4 md:col-span-2 ">
+        <Button
+          onClick={() => router.push('/')}
+          variant="outline"
+          className="flex items-center gap-2 w-fit cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+      </div>
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden md:grid md:grid-cols-2">
+
         {/* Imagem */}
         <div className="flex justify-center items-center bg-gray-100 p-8">
           <img
@@ -92,6 +167,24 @@ export default function ProductDetails({ product, user }: ProductDetailsProps) {
               <p className="text-gray-700 leading-relaxed border-t pt-4">
                 {product.description}
               </p>
+            )}
+
+            {/* Seleção de quantidade */}
+            {product.quantity && (
+              <div className="mt-4">
+                <Label className="text-sm text-gray-500">Quantidade</Label>
+                <input
+                  type="number"
+                  min={1}
+                  max={product.quantity}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="border rounded px-3 py-1 w-24 mt-1"
+                />
+                <p className="text-sm text-gray-400 mt-1">
+                  Disponível em estoque: {product.quantity}
+                </p>
+              </div>
             )}
 
             {/* Info do vendedor */}

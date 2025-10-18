@@ -53,13 +53,19 @@ export const getProducts = async (params: GetProductsParams = {}) => {
   }
 };
 
+export const getItemsInCart = async () => {
+  const res = await api.get("api/cart/getCart");
+  console.log("Itens no carrinho:", res.data);
+  return res.data;
+}
+
 export const getProductById = async (product_id: number) => {
   const res = await api.get(`api/product/getProductById/${product_id}`);
   return res.data;
 };
 
-export const addToCart = async (product_id: number ) => {
-  const res = await api.post("api/cart/addProductCart", { product_id });
+export const addToCart = async (product_id: number, quantity: number ) => {
+  const res = await api.post("api/cart/addProductCart", { product_id, quantity });
   return res.data;
 };
 
@@ -68,3 +74,15 @@ export const toggleFavorite = async (product_id: number) => {
   return res.data;
 };
 
+export const getFavorites = async () => {
+  const res = await api.get("api/favorite/getFavorites");
+  return res.data;
+};
+
+export const removeFavorite = async (favoriteId: number) => {
+  console.log("Removendo favorito com ID:", favoriteId);
+  const res = await api.delete("api/favorite/removeFavorite", {
+    data: { favoriteId },
+  });
+  return res.data;
+};

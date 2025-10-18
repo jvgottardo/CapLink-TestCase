@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ShoppingCart, Heart, UserCircle } from "lucide-react";
 import { getCurrentUser } from "../utils/auth"; // função fictícia para pegar usuário logado
 import { useLogout } from "../utils/auth";
+import { getItemsInCart } from "../utils/api";
 
 interface User {
   name: string;
@@ -15,21 +16,42 @@ interface User {
   avatar_url?: string;
 }
 
+interface CartItem {
+  id: number;
+  product_id: number;
+  quantity: number;
+}
+
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const logout = useLogout();
 
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     // Aqui você pode pegar o usuário logado via API ou contexto
-    const fetchUser = async () => {
-      const u = await getCurrentUser(token);
-      // retorna null se não estiver logado
-      setUser(u);
+    const fetchUserAndCart = async () => {
+      try {
+        const u = await getCurrentUser(token);
+        if (u) {
+          setUser(u);
+
+          // Busca os itens do carrinho do usuário logado
+          getItemsInCart().then((res) => {
+            setCartItems(res.cart.items || []);
+          });
+
+        }
+      } catch (error) {
+        console.error("Erro ao buscar usuário ou carrinho:", error);
+      }
     };
-    fetchUser();
+
+    fetchUserAndCart();
   }, []);
+
+  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <header className="bg-white shadow-md">
@@ -49,10 +71,11 @@ export default function Header() {
               <Link href="/cart">
                 <Button variant="ghost" className="relative cursor-pointer">
                   <ShoppingCart />
-                  {/* Badge de quantidade (exemplo) */}
-                  <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
-                    3
-                  </span>
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
                 </Button>
               </Link>
 

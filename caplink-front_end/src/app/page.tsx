@@ -127,7 +127,16 @@ export default function Home() {
 
       {/* Grid de produtos */}
       {loading ? (
-        <p>Carregando...</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: limit }).map((_, i) => (
+            <div key={i} className="border rounded-lg p-4 animate-pulse">
+              <div className="w-full h-48 bg-gray-200 rounded mb-4" />
+              <div className="h-4 bg-gray-200 rounded mb-2 w-3/4" />
+              <div className="h-4 bg-gray-200 rounded w-1/2" />
+              <div className="h-6 bg-gray-200 rounded mt-4 w-1/2" />
+            </div>
+          ))}
+        </div>
       ) : products.length === 0 ? (
         <p>Nenhum produto encontrado.</p>
       ) : (
@@ -137,6 +146,7 @@ export default function Home() {
           ))}
         </div>
       )}
+
 
       {/* Paginação */}
       <div className="flex justify-center mt-6 gap-2">
