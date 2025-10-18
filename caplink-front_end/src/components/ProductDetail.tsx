@@ -43,8 +43,12 @@ export default function ProductDetails({ product, user }: ProductDetailsProps) {
     setAddingToCart(true);
     try {
       await addToCart(product.product_id, quantity);
+      window.location.href = "/cart";
       toast.success("Produto adicionado ao carrinho!");
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.data?.error === "Token inválido ou expirado") {
+        toast.error("Você precisa fazer login para adicionar ao carrinho.");
+      }
       toast.error("Erro ao adicionar ao carrinho.");
     } finally {
       setAddingToCart(false);
@@ -77,6 +81,9 @@ export default function ProductDetails({ product, user }: ProductDetailsProps) {
         }
       }
     } catch (err: any) {
+      if (err.response?.data?.error === "Token inválido ou expirado") {
+        toast.error("Você precisa fazer login para adicionar ao favoritos.");
+      }
       console.error("Erro ao atualizar favorito:", err);
       toast.error("Erro ao atualizar favorito.");
     }
@@ -95,8 +102,8 @@ export default function ProductDetails({ product, user }: ProductDetailsProps) {
           setIsFavorite(true);
           setFavoriteId(favItem.favorite_id);
         }
-      } catch (err) {
-        console.error("Erro ao verificar favorito:", err);
+      } catch (err: any) {
+        console.error("Erro ao buscar favoritos:", err);
       } finally {
         setLoading(false);
       }

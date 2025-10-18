@@ -25,7 +25,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Função para pegar todos os produtos
+// products
 export const getProducts = async (params: GetProductsParams = {}) => {
   try {
     const res = await api.get('/api/product/getProducts', {
@@ -53,31 +53,43 @@ export const getProducts = async (params: GetProductsParams = {}) => {
   }
 };
 
+export const getProductById = async (product_id: number) => {
+  const res = await api.get(`api/product/getProductById/${product_id}`);
+  return res.data;
+};
+
+//cart
 export const getItemsInCart = async () => {
   const res = await api.get("api/cart/getCart");
   console.log("Itens no carrinho:", res.data);
   return res.data;
 }
 
-export const getProductById = async (product_id: number) => {
-  const res = await api.get(`api/product/getProductById/${product_id}`);
-  return res.data;
-};
-
 export const addToCart = async (product_id: number, quantity: number ) => {
   const res = await api.post("api/cart/addProductCart", { product_id, quantity });
   return res.data;
 };
+
+export const removeFromCart = async (product_id: number) => {
+  const res = await api.delete("api/cart/removeProductCart", {
+    data: { product_id } 
+  });
+  return res.data;
+};
+
+
+//favorites
 
 export const toggleFavorite = async (product_id: number) => {
   const res =  await api.post("api/favorite/addFavorite", { product_id });
   return res.data;
 };
 
-export const getFavorites = async () => {
-  const res = await api.get("api/favorite/getFavorites");
+export const getFavorites = async (page = 1, limit = 8) => {
+  const res = await api.get(`api/favorite/getFavorites?page=${page}&limit=${limit}`);
   return res.data;
 };
+
 
 export const removeFavorite = async (favoriteId: number) => {
   console.log("Removendo favorito com ID:", favoriteId);
