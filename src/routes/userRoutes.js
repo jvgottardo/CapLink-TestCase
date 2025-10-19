@@ -8,9 +8,9 @@ const router = express.Router();
 // Rotas públicas
 router.post('/signup', userController.signup);
 router.post('/login', userController.login);
+router.get("/vendors", userController.getVendors);
 
 // Rotas protegidas
-router.get("/vendors", authenticate, userController.getVendors);
 router.get('/profile', authenticate, userController.getProfile);
 router.put('/editProfileUser', authenticate, userController.editProfile);
 router.delete('/deleteProfileUser', authenticate, userController.deleteProfile);
