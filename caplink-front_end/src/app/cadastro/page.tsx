@@ -37,23 +37,23 @@ export default function RegisterPage() {
       <h1 className="text-2xl font-bold mb-4">Cadastro</h1>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div>
-          <Label htmlFor="nome">Nome</Label>
+          <Label htmlFor="nome" className="mb-1">Nome</Label>
           <Input placeholder="Nome" id="nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
 
         <div>
 
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className="mb-1">Email</Label>
           <Input placeholder="Email" id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
 
         <div>
 
-          <Label htmlFor="password">Senha</Label>
+          <Label htmlFor="password" className="mb-1">Senha</Label>
           <Input placeholder="Senha" id="password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
         <div>
-          <Label htmlFor="password">O que você é</Label>
+          <Label htmlFor="password" className="mb-1">O que você é</Label>
 
           <Select
             value={form.role}

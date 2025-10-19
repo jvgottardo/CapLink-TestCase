@@ -44,6 +44,14 @@ export const getCurrentUser = async (token: any) => {
   }
 };
 
+export const deleteUser = async (token: any) => {
+   const  jwtToken = token;
+    const res = await axios.delete(`${API_URL}/api/auth/deleteProfileUser`, {
+      headers: { Authorization: `${jwtToken}`},
+    });
+    return res.data;
+}
+
 export const getToken = () => {
   if (typeof window !== "undefined") {
     return localStorage.getItem("token");
@@ -58,3 +66,4 @@ export const setToken = (token: string) => {
 export const removeToken = () => {
   localStorage.removeItem("token");
 };
+
