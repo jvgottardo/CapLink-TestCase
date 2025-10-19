@@ -78,7 +78,11 @@ export const orderController = {
 //pegar os items do order para mostrar no historio
 async getOrders(req, res) {
   try {
-    const userId = req.user.userId;
+    const userId = req.body.userId || req.user?.userId;
+    if (!userId) {
+      return res.status(400).json({ error: "userId não informado" });
+    }
+
 
     // Paginação
     const page = parseInt(req.query.page) || 1;
@@ -160,7 +164,11 @@ async getOrders(req, res) {
 //pegar uma order especifica
 async getOrderDetails(req, res) {
   try {
-    const userId = req.user.userId;
+    const userId = req.body.userId || req.user?.userId;
+    if (!userId) {
+      return res.status(400).json({ error: "userId não informado" });
+    }
+
     const { orderId } = req.params;
     const order = await prisma.orders.findFirst({
       where: {
