@@ -78,7 +78,12 @@ export const orderController = {
 //pegar os items do order para mostrar no historio
 async getOrders(req, res) {
   try {
-    const userId = req.user.userId;
+     const userId = req.body?.userId || req.user?.userId;
+
+    // Se não tiver nenhum, retorna erro amigável
+    if (!userId) {
+      return res.status(400).json({ error: "É necessário informar um userId ou estar autenticado." });
+    }
 
     // Paginação
     const page = parseInt(req.query.page) || 1;
