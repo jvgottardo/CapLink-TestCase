@@ -130,7 +130,7 @@ export default function CartPage() {
           {/* Resumo do pedido */}
           <div className="mt-6 flex justify-end items-center gap-4">
             <p className="text-xl font-semibold">Total: R$ {totalPrice.toFixed(2)}</p>
-            <Button className="bg-green-600 hover:bg-green-700 cursor-pointer">Finalizar Compra</Button>
+            <Button onClick={() => router.push("/checkout")} className="bg-green-600 hover:bg-green-700 cursor-pointer">Finalizar Compra</Button>
           </div>
         </div>
       )}

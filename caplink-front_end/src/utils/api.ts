@@ -98,3 +98,9 @@ export const removeFavorite = async (favoriteId: number) => {
   });
   return res.data;
 };
+
+//checkout
+export const createOrder = async () => {
+  const res = await api.post("api/order/checkout");
+  return res.data;
+};

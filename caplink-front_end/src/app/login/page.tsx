@@ -33,7 +33,7 @@ export default function LoginPage() {
       <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
         <Input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         <Input placeholder="Senha" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        <Button type="submit" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</Button>
+        <Button type="submit" className="cursor-pointer" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</Button>
       </form>
       <div>
         <p className="mt-4">

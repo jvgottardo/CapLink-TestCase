@@ -37,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <p className="text-gray-700">{product.brand}</p>
       <p className="text-gray-700">{product.description}</p>
       <p className="text-gray-700">{product.category}</p>
-      <p className="text-green-600 font-bold">${product.price}</p>
+      <p className="text-green-600 font-bold">R${product.price}</p>
     </div>
   );
 }
