@@ -168,4 +168,23 @@ export const userController = {
       res.status(500).json({ error: 'Erro no servidor' });
     }
   },
+
+  //list vendors 
+  async getVendors(req, res) {
+    try {
+      const vendors = await prisma.users.findMany({
+        where: { role: "vendor", active: true },
+        select: {
+          user_id: true,
+          name: true,
+        },
+        orderBy: { name: "asc" },
+      });
+
+      res.json({ vendors });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Erro ao buscar vendedores" });
+    }
+  },
 };

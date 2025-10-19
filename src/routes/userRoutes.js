@@ -10,6 +10,7 @@ router.post('/signup', userController.signup);
 router.post('/login', userController.login);
 
 // Rotas protegidas
+router.get("/vendors", authenticate, userController.getVendors);
 router.get('/profile', authenticate, userController.getProfile);
 router.put('/editProfileUser', authenticate, userController.editProfile);
 router.delete('/deleteProfileUser', authenticate, userController.deleteProfile);
