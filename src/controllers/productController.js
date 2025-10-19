@@ -10,7 +10,7 @@ export const productController = {
     const skip = (page - 1) * limit;
 
     // Filtros dinâmicos
-    const { search, category, minPrice, maxPrice, active } = req.query;
+    const { search, category, minPrice, maxPrice, active, vendorId  } = req.query;
 
     // Monta o objeto "where" dinamicamente
     const where = {};
@@ -30,6 +30,8 @@ export const productController = {
       if (minPrice) where.price.gte = parseFloat(minPrice);
       if (maxPrice) where.price.lte = parseFloat(maxPrice);
     }
+
+    if (vendorId) where.vendor_id = parseInt(vendorId);
 
     // Busca + paginação
     const [products, total] = await Promise.all([
@@ -66,7 +68,7 @@ export const productController = {
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      filters: { search, category, minPrice, maxPrice, active },
+      filters: { search, category, minPrice, maxPrice, active, vendorId },
       products,
     });
   } catch (error) {
