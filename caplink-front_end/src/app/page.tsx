@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getProducts } from "../utils/api";
+import { getProducts, getVendors } from "../utils/api";
 import ProductCard from "../components/ProductCard";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -21,6 +21,8 @@ export default function Home() {
   const [category, setCategory] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [vendors, setVendors] = useState<{ user_id: number; name: string }[]>([]);
+  const [vendorId, setVendorId] = useState(""); // mantém o filtro
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10; // produtos por página
@@ -28,17 +30,25 @@ export default function Home() {
   // Função para buscar produtos
   const fetchProducts = async () => {
     setLoading(true);
+
+
+
+    // Depois transforma em query string para enviar à API
     try {
-      const res = await getProducts({
+      const query: any = {
         search,
         category: category === "all" ? "" : category,
         minPrice: minPrice ? Number(minPrice) : 0,
         maxPrice: maxPrice ? Number(maxPrice) : 999999,
         page,
         limit,
-      });
+      };
 
-      console.log()
+      if (vendorId) {
+        query.vendorId = Number(vendorId);
+      }
+
+      const res = await getProducts(query);
 
       if (res.products) {
         setProducts(res.products);
@@ -66,6 +76,15 @@ export default function Home() {
     return categories;
   };
 
+  const fetchVendors = async () => {
+    try {
+      const v = await getVendors();
+      setVendors(v);
+    } catch (err) {
+      console.error("Erro ao buscar vendedores:", err);
+    }
+  };
+
   // Inicializa categorias
   useEffect(() => {
     const fetchCategories = async () => {
@@ -73,6 +92,7 @@ export default function Home() {
       setCategories(cats);
     };
     fetchCategories();
+    fetchVendors();
   }, []);
 
   // Busca produtos ao carregar e ao trocar página
@@ -122,6 +142,20 @@ export default function Home() {
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
         />
+        <Select onValueChange={(val) => setVendorId(val)} value={vendorId}>
+          <SelectTrigger className="w-48 cursor-pointer">
+            <SelectValue placeholder="Vendedor" />
+          </SelectTrigger>
+          <SelectContent className="cursor-pointer">
+            <SelectItem value="all">Todos</SelectItem>
+            {vendors.map((v) => (
+              <SelectItem key={v.user_id} value={v.user_id.toString()}>
+                {v.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Button onClick={handleFilter} className="cursor-pointer">Filtrar</Button>
       </div>
 

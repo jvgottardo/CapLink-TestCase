@@ -10,6 +10,7 @@ interface GetProductsParams {
   active?: boolean;
   page?: number;
   limit?: number;
+  vendorId?: number;
 }
 
 export const api = axios.create({
@@ -37,6 +38,7 @@ export const getProducts = async (params: GetProductsParams = {}) => {
         active: params.active ?? true,
         page: params.page || 1,
         limit: params.limit || 10,
+        vendorId: params.vendorId || undefined,
       },
     });
     console.log('Produtos buscados com sucesso:', res.data);
@@ -103,4 +105,20 @@ export const removeFavorite = async (favoriteId: number) => {
 export const createOrder = async () => {
   const res = await api.post("api/order/checkout");
   return res.data;
+};
+
+export const getOrders = async (page = 1, limit = 10) => {
+  const res = await api.get(`api/order/getOrders?page=${page}&limit=${limit}`);
+  return res.data;
+}
+
+export const getOrderById = async (order_id: number) => {
+  const res = await api.get(`/api/order/getOrderDetails/${order_id}`);
+  return res.data;
+};
+
+// utils/api.ts
+export const getVendors = async () => {
+  const res = await api.get("/api/auth/vendors");
+  return res.data.vendors; 
 };
