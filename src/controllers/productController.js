@@ -215,7 +215,7 @@ export const productController = {
     }
   },
 
-  async getProductsByUser(req, res) {
+async getProductsByUser(req, res) {
   try {
     const userId = req.user.userId; // ID do vendedor logado
 
@@ -224,36 +224,60 @@ export const productController = {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // total de produtos do vendedor
-    const totalProducts = await prisma.products.count({
-      where: { vendor_id: userId },
-    });
+    // Filtros dinâmicos
+    const { search, category, brand, minPrice, maxPrice, active } = req.query;
 
-    // buscar produtos do vendedor com paginação
-    const products = await prisma.products.findMany({
-      where: { vendor_id: userId },
-      orderBy: { created_at: 'desc' },
-      skip,
-      take: limit,
-      select: {
-        product_id: true,
-        name: true,
-        description: true,
-        price: true,
-        image_url: true,
-        category: true,
-        brand: true,
-        quantity: true,
-        published_at: true,
-        active: true,
-        created_at: true,
-      },
-    });
+    // Monta o objeto "where" dinamicamente, sempre filtrando pelo vendedor
+    const where = { vendor_id: userId };
+
+    if (search) {
+      // Prisma aceita OR como array
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { brand: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (category) where.category = { equals: category, mode: 'insensitive' };
+    if (brand) where.brand = { equals: brand, mode: 'insensitive' };
+    if (active !== undefined) where.active = active === 'true';
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    // Buscar produtos do vendedor com paginação
+    const [products, totalProducts] = await Promise.all([
+      prisma.products.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          product_id: true,
+          name: true,
+          description: true,
+          price: true,
+          image_url: true,
+          category: true,
+          brand: true,
+          quantity: true,
+          published_at: true,
+          active: true,
+          created_at: true,
+        },
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.products.count({ where }),
+    ]);
 
     res.json({
-      total: totalProducts,
       page,
+      limit,
+      total: totalProducts,
       totalPages: Math.ceil(totalProducts / limit),
+      filters: { search, category, brand, minPrice, maxPrice, active },
       products,
     });
   } catch (error) {
@@ -261,7 +285,6 @@ export const productController = {
     res.status(500).json({ error: 'Erro no servidor ao buscar produtos do vendedor' });
   }
 },
-
 
   //cadastrar produto via csv
   async addProductsViaCSV(req, res) {
