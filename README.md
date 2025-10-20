@@ -37,6 +37,7 @@ O sistema consiste em um **painel para vendedores** e uma **interface de e-comme
 - Login e registro de usuário (cliente ou vendedor)
 - Tokens JWT armazenados localmente
 - Proteção de rotas autenticadas
+- Produtos Favoritos
 
 ### 🏪 Vendedor
 - Cadastro, edição, desativação e reativação de produtos
