@@ -55,6 +55,6 @@ O sistema consiste em um **painel para vendedores** e uma **interface de e-comme
 
 **João Gottardo**  
 💼 *Software Engineer | Fullstack Developer*  
-📧 [joaogottardo.dev@gmail.com](mailto:joaogottardo.dev@gmail.com)  
+📧 [jvgotta1@gmail.com](mailto:jvgotta1@gmail.com)  
 
-🌐 [LinkedIn](https://www.linkedin.com/in/joaogottardo/) | [GitHub](https://github.com/joaogottardo)
+🌐 [LinkedIn]((https://www.linkedin.com/in/joao-vitor-gottardo/)) | [GitHub]((https://github.com/jvgottardo))
