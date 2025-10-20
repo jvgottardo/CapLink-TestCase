@@ -20,7 +20,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-apo.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
