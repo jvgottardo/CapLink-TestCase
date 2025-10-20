@@ -27,6 +27,16 @@ export const dashboardController = {
         0
       );
 
+      // Quantidade de produtos ativos
+      const activeProductCount = await prisma.products.count({
+        where: { vendor_id: vendorId, active: true },
+      });
+
+      // Quantidade de produtos desativados
+      const inactiveProductCount = await prisma.products.count({
+        where: { vendor_id: vendorId, active: false },
+      });
+
       // Quantidade de produtos cadastrados
       const productCount = await prisma.products.count({
         where: { vendor_id: vendorId },
@@ -58,6 +68,8 @@ export const dashboardController = {
         totalSold,
         totalRevenue,
         productCount,
+        activeProductCount,
+        inactiveProductCount,
         bestProduct: bestProduct || null,
       });
     } catch (error) {
