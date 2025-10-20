@@ -24,7 +24,7 @@ O sistema consiste em um **painel para vendedores** e uma **interface de e-comme
 - [PostgreSQL](https://www.postgresql.org/)
 - [JWT](https://jwt.io/) para autenticação
 - [Bcrypt](https://www.npmjs.com/package/bcrypt) para hash de senhas
-- Hospedagem: **Railway**
+- Hospedagem: **[Railway](https://railway.com/)**
 
 ---
 
