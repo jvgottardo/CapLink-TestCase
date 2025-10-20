@@ -158,8 +158,6 @@ export const productController = {
         return res.status(400).json({ error: 'Nome e preço são obrigatórios' });
       }
 
-      
-
       const vendorId = req.user?.userId;
       if (!vendorId) {
         return res.status(401).json({ error: 'Usuário não autenticado' });
