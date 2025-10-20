@@ -1,7 +1,7 @@
 # 🧩 CapLink — Test Case Fullstack
 
-Este é um **projeto de teste técnico** desenvolvido para demonstrar minhas habilidades em **desenvolvimento fullstack**, utilizando **Node.js, Express, Prisma, PostgreSQL e Next.js**.  
-O sistema consiste em um **painel para vendedores** e uma **interface de e-commerce**, permitindo **cadastro, autenticação, gestão de produtos e integração com banco de dados** hospedado no **Railway**.
+Este é um **projeto de teste técnico** desenvolvido para demonstrar minhas habilidades em **desenvolvimento fullstack**, utilizando **Node.js, PostgreSQL e Next.js**.  
+O sistema consiste em um **painel para vendedores** e uma **interface de e-commerce**, permitindo **cadastro, autenticação, gestão de produtos, integração com banco de dados e experiência de compra** hospedado no **Railway**.
 
 ---
 
@@ -15,7 +15,7 @@ O sistema consiste em um **painel para vendedores** e uma **interface de e-comme
 - [Shadcn UI](https://ui.shadcn.com/)
 - [Axios](https://axios-http.com/)
 - [Sonner](https://sonner.emilkowal.ski/) para feedback de sucesso/erro
-- Hospedagem: **Railway**
+- Hospedagem: **[Railway](https://railway.com/)**
 
 ### ⚙️ Back-end
 - [Node.js](https://nodejs.org/)
