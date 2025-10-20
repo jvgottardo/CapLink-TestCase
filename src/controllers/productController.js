@@ -1,4 +1,7 @@
 import prisma from '../config/db.js';
+import { supabase } from "../config/supabase.js";
+import fs from "fs";
+
 
 export const productController = {
   //listar produtos
@@ -155,7 +158,7 @@ export const productController = {
         return res.status(400).json({ error: 'Nome e preço são obrigatórios' });
       }
 
-      const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+      
 
       const vendorId = req.user?.userId;
       if (!vendorId) {
@@ -167,6 +170,30 @@ export const productController = {
           .status(403)
           .json({ error: 'Apenas vendedores podem adicionar produtos' });
       }
+
+        // --- Upload Supabase ---
+    let image_url = null;
+    if (req.file) {
+      const fileName = `${Date.now()}-${req.file.originalname}`;
+      const filePath = `${process.env.SUPABASE_BUCKET}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(process.env.SUPABASE_BUCKET)
+        .upload(fileName, fs.createReadStream(req.file.path), {
+          contentType: req.file.mimetype,
+          duplex: "half"
+        });
+
+      fs.unlinkSync(req.file.path); // apaga o arquivo local temporário
+
+      if (uploadError) {
+        console.error(uploadError);
+        return res.status(500).json({ error: "Erro ao fazer upload da imagem" });
+      }
+
+      const { data } = supabase.storage.from(process.env.SUPABASE_BUCKET).getPublicUrl(fileName);
+      image_url = data.publicUrl;
+    }
 
       const newProduct = await prisma.products.create({
         data: {
@@ -321,9 +348,28 @@ export const productController = {
           .json({ error: 'Você não tem permissão para editar este produto' });
       }
 
-      const image_url = req.file
-        ? `/uploads/${req.file.filename}`
-        : product.image_url;
+      let image_url = product.image_url;
+
+    if (req.file) {
+      const fileName = `${Date.now()}-${req.file.originalname}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(process.env.SUPABASE_BUCKET)
+        .upload(fileName, fs.createReadStream(req.file.path), {
+          contentType: req.file.mimetype,
+          duplex: "half"
+        });
+
+      fs.unlinkSync(req.file.path);
+
+      if (uploadError) {
+        console.error(uploadError);
+        return res.status(500).json({ error: "Erro ao fazer upload da nova imagem" });
+      }
+
+      const { data } = supabase.storage.from(process.env.SUPABASE_BUCKET).getPublicUrl(fileName);
+      image_url = data.publicUrl;
+    }
 
       const updatedProduct = await prisma.products.update({
         where: { product_id: productId },
