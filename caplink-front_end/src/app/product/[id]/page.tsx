@@ -46,7 +46,7 @@ export default function ProductPage() {
     );
   }
 
-  if (!product) return <p className="p-8 text-center">Produto não encontrado</p>;
+  if (!product) return <p className="p-8 text-center">Produto não encontrado ou dasativado</p>;
 
   return <ProductDetails product={product} user={user} />;
 }

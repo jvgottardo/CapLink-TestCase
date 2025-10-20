@@ -105,7 +105,7 @@ export default function Header() {
                       <Link href="/profile">Profile</Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={logout}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>

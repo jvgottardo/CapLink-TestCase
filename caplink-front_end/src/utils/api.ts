@@ -26,7 +26,59 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // JWT expirou ou inválido
+      localStorage.removeItem("token"); // limpa o token
+      console.log("Sessão expirada, redirecionando para a página inicial");
+      window.location.href = "/"; // redireciona para home
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 // products
+export const addProduct = async (formData: FormData) => {
+  const { data } = await api.post("api/product/addProduct", formData, {
+    headers: { "Content-Type": "multipart/form-data" }, // mantém multipart
+  });
+  return data;
+};
+
+export const getProductById = async (product_id: number) => {
+  const res = await api.get(`api/product/getProductById/${product_id}`,);
+  return res.data;
+};
+
+export const editProduct = async (formData: FormData, product_id: number) => {
+  const { data } = await api.put(`api/product/editProduct/${product_id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+  return data;
+};
+
+export const deleteProduct = async (product_id: number) => {
+  const res = await api.delete("api/product/deleteProduct", {
+    data: { product_id } 
+  });
+  return res.data;
+};
+
+
+
+export const deactivateProduct = async (product_id: number) => {
+  const res =  await api.put("api/product/deactivateProduct", { product_id });
+  return res.data;
+};
+
+export const activateProduct = async (product_id: number) => {
+  const res =  await api.put("api/product/activateProduct", { product_id });
+  return res.data;
+};
+
 export const getProducts = async (params: GetProductsParams = {}) => {
   try {
     const res = await api.get('/api/product/getProducts', {
@@ -37,7 +89,7 @@ export const getProducts = async (params: GetProductsParams = {}) => {
         maxPrice: params.maxPrice || 999999,
         active: params.active ?? true,
         page: params.page || 1,
-        limit: params.limit || 10,
+        limit: params.limit || 12,
         vendorId: params.vendorId || undefined,
       },
     });
@@ -55,8 +107,21 @@ export const getProducts = async (params: GetProductsParams = {}) => {
   }
 };
 
-export const getProductById = async (product_id: number) => {
-  const res = await api.get(`api/product/getProductById/${product_id}`);
+export const getProductsByUser = async (page:number, limit = 12) => {
+  const res = await api.get(`api/product/getProductsByUser?page=${page}&limit=${limit}`);
+  return res.data;
+};
+
+export const importProducts = async (formData: FormData) => {
+  const res = await api.post(`api/product/importProducts`, formData, {
+     headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+//vendor dashboard
+export const dashboard = async () => {
+  const res = await api.get(`api/dashboard/vendor`);
   return res.data;
 };
 
@@ -94,7 +159,6 @@ export const getFavorites = async (page = 1, limit = 8) => {
 
 
 export const removeFavorite = async (favoriteId: number) => {
-  console.log("Removendo favorito com ID:", favoriteId);
   const res = await api.delete("api/favorite/removeFavorite", {
     data: { favoriteId },
   });

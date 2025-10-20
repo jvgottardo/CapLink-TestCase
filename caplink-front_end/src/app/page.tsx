@@ -25,7 +25,7 @@ export default function Home() {
   const [vendorId, setVendorId] = useState(""); // mantém o filtro
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 10; // produtos por página
+  const limit = 12; // produtos por página
 
   // Função para buscar produtos
   const fetchProducts = async () => {

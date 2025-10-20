@@ -92,7 +92,7 @@ export default function OrdersPage() {
         <>
           <div className="space-y-4 mb-8">
             {orders.map((order) => (
-              <Card key={order.id} className="shadow-sm">
+              <Card key={order.order_id} className="shadow-sm">
                 <CardHeader className="flex justify-between items-center flex-row">
                   <CardTitle className="text-lg font-semibold">
                     Pedido #{order.order_id}

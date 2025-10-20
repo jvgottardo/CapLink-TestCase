@@ -25,6 +25,7 @@ interface ProductDetailsProps {
     image_url?: string;
     quantity?: number
     vendor?: User; // opcional: se você já retorna o vendedor junto do produto
+    active?: boolean
   };
   user: User;
 }
@@ -205,30 +206,39 @@ export default function ProductDetails({ product, user }: ProductDetailsProps) {
 
           {/* Ações */}
           <div className="flex flex-col md:flex-row gap-4 mt-8">
-            <Button
-              onClick={handleAddToCart}
-              disabled={addingToCart}
-              className="flex items-center cursor-pointer justify-center gap-2 w-full md:w-auto bg-green-600 hover:bg-green-700"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {addingToCart ? "Adicionando..." : "Adicionar ao carrinho"}
-            </Button>
+            {product.active ? (
+              <>
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  className="flex items-center cursor-pointer justify-center gap-2 w-full md:w-auto bg-green-600 hover:bg-green-700"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {addingToCart ? "Adicionando..." : "Adicionar ao carrinho"}
+                </Button>
 
-            <Button
-              onClick={handleToggleFavorite}
-              variant={isFavorite ? "default" : "outline"}
-              className={`flex items-center justify-center gap-2 w-full md:w-auto cursor-pointer ${isFavorite
-                ? "bg-red-500 hover:bg-red-600 text-white"
-                : "border-red-500 text-red-500"
-                }`}
-            >
-              <Heart
-                className={`w-4 h-4 ${isFavorite ? "fill-current text-white" : "text-red-500"
-                  }`}
-              />
-              {isFavorite ? "Favoritado" : "Favoritar"}
-            </Button>
+                <Button
+                  onClick={handleToggleFavorite}
+                  variant={isFavorite ? "default" : "outline"}
+                  className={`flex items-center justify-center gap-2 w-full md:w-auto cursor-pointer ${isFavorite
+                    ? "bg-red-500 hover:bg-red-600 text-white"
+                    : "border-red-500 text-red-500"
+                    }`}
+                >
+                  <Heart
+                    className={`w-4 h-4 ${isFavorite ? "fill-current text-white" : "text-red-500"
+                      }`}
+                  />
+                  {isFavorite ? "Favoritado" : "Favoritar"}
+                </Button>
+              </>
+            ) : (
+              <div className="w-full text-center border border-red-500 text-red-600 font-semibold py-3 rounded-lg bg-red-50">
+                Produto desativado no momento
+              </div>
+            )}
           </div>
+
 
           {/* Garantia / info adicional */}
           <div className="mt-8 border-t pt-6 text-sm text-gray-500">

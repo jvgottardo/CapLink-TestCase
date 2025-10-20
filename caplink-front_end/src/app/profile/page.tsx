@@ -103,6 +103,10 @@ export default function ProfilePage() {
           Editar Perfil
         </Button> */}
 
+        <Button variant="secondary" className="cursor-pointer" onClick={() => router.push("/orders")}>
+          Histórico de compras
+        </Button>
+
         {/* Modal AlertDialog para excluir */}
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialogTrigger asChild>
