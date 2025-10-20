@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { getCurrentUser, deleteUser } from "../../utils/auth";
+import { getCurrentUser, deleteUser, editProfile } from "../../utils/auth";
 
 
 interface User {
@@ -25,12 +25,14 @@ interface User {
   name: string;
   email: string;
   role: string;
+  password: string;
 }
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isOpen, setIsOpen] = useState(false); // controla o modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const router = useRouter();
 
 
@@ -71,6 +73,21 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSave = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      if (user)
+        await editProfile(user, token);
+      toast.success("Perfil atualizado com sucesso!");
+      setEditing(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao atualizar perfil");
+    }
+  };
+
   if (loading) return <p className="text-center py-10">Carregando...</p>;
   if (!user) return <p className="text-center py-10">Usuário não encontrado.</p>;
 
@@ -85,23 +102,51 @@ export default function ProfilePage() {
         <CardContent className="grid gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Nome</label>
-            <Input value={user.name} disabled />
+            <Input
+              value={user.name}
+              disabled={!editing}
+              onChange={(e) => setUser({ ...user, name: e.target.value })}
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">E-mail</label>
-            <Input value={user.email} disabled />
+            <Input
+              value={user.email}
+              disabled={!editing}
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
+            />
           </div>
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700">Tipo de usuário</label>
             <Input value={user.role} disabled />
+          </div> */}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Senha</label>
+            <Input
+              type="password"
+              placeholder="Digite nova senha"
+              disabled={!editing}
+              value={user.password || ""}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
+            />
           </div>
         </CardContent>
       </Card>
 
+
+
       <div className="flex justify-between gap-4">
-        {/* <Button variant="secondary" className="cursor-pointer" onClick={() => router.push("/profile/edit")}>
-          Editar Perfil
-        </Button> */}
+        <div className="flex gap-4">
+          {!editing ? (
+            <Button onClick={() => setEditing(true)}>Editar Perfil</Button>
+          ) : (
+            <>
+              <Button variant="default" className="cursor-pointer" onClick={handleSave}>Salvar</Button>
+              <Button variant="outline" className="cursor-pointer" onClick={() => setEditing(false)}>Cancelar</Button>
+            </>
+          )}
+        </div>
 
         <Button variant="secondary" className="cursor-pointer" onClick={() => router.push("/orders")}>
           Histórico de compras

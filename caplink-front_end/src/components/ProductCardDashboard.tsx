@@ -38,6 +38,7 @@ export default function ProductCardDashboard({ product, refreshProducts }: Produ
   const [preview, setPreview] = useState<string | null>(product.image_url || null);
   const [open, setOpen] = useState(false);
 
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
     setFile(f);

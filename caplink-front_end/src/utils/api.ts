@@ -107,10 +107,25 @@ export const getProducts = async (params: GetProductsParams = {}) => {
   }
 };
 
-export const getProductsByUser = async (page:number, limit = 12) => {
-  const res = await api.get(`api/product/getProductsByUser?page=${page}&limit=${limit}`);
+export const getProductsByUser = async (
+  page: number,
+  limit = 12,
+  filters: Record<string, any> = {}
+) => {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    ...Object.fromEntries(
+      Object.entries(filters)
+        .filter(([_, value]) => value !== undefined && value !== "")
+        .map(([key, value]) => [key, String(value)])
+    ),
+  });
+
+  const res = await api.get(`api/product/getProductsByUser?${params.toString()}`);
   return res.data;
 };
+
 
 export const importProducts = async (formData: FormData) => {
   const res = await api.post(`api/product/importProducts`, formData, {

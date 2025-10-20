@@ -18,6 +18,7 @@ import ProductCardDashboard from "@/src/components/ProductCardDashboard";
 import Image from "next/image";
 import UploadCSVButton from "@/src/components/UploadCSVButton";
 import { editProfile, getCurrentUser } from "../../utils/auth";
+import ProductFilters from "@/src/components/ProductFilters";
 
 interface Product {
   product_id: number;
@@ -61,6 +62,7 @@ export default function VendorDashboard() {
   });
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [filters, setFilters] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -81,10 +83,10 @@ export default function VendorDashboard() {
     image: null as File | null,
   });
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (filters: Record<string, any> = {}) => {
     setLoading(true);
     try {
-      const res = await getProductsByUser(page);
+      const res = await getProductsByUser(page, 12, filters); // passa filtros
       setProducts(res.products);
       setTotalPages(res.totalPages);
     } catch (err) {
@@ -94,6 +96,7 @@ export default function VendorDashboard() {
       setLoading(false);
     }
   };
+
 
   const fetchDataDashboard = async () => {
     setLoading(true);
@@ -109,9 +112,9 @@ export default function VendorDashboard() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(filters);
     fetchDataDashboard();
-  }, [page]);
+  }, [filters, page]);
 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -422,6 +425,8 @@ export default function VendorDashboard() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <ProductFilters onFilter={(newFilters) => setFilters(newFilters)} />
 
       {loading ? (
         <p>Carregando...</p>
