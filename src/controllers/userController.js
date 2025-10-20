@@ -157,10 +157,10 @@ export const userController = {
         data: { active: true },
       });
 
-      await prisma.products.updateMany({
-        where: { vendor_id: userId },
-        data: { active: true },
-      });
+      // await prisma.products.updateMany({
+      //   where: { vendor_id: userId },
+      //   data: { active: true },
+      // });
 
       res.json({ message: 'Conta reativada com sucesso' });
     } catch (error) {
