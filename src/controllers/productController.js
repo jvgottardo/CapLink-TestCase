@@ -1,5 +1,5 @@
 import prisma from '../config/db.js';
-import { supabase } from "../config/supabase.js";
+import { supabase } from '../utils/supabaseClient.js';
 import fs from "fs";
 
 
