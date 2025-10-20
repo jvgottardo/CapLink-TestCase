@@ -47,12 +47,6 @@ O sistema consiste em um **painel para vendedores** e uma **interface de e-comme
 - Adição ao carrinho e favoritos (em desenvolvimento)
 - Edição de perfil e histórico de compras
 
----
-
-
-
-
-## ⚙️ Como Rodar o Projeto Localmente
 
 ## 🧑‍💻 Autor
 
