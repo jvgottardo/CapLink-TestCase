@@ -31,6 +31,10 @@ O sistema consiste em um **painel para vendedores** e uma **interface de e-comme
 
 ---
 
+## Branchs
+ - **railway**: Está o banckend completo
+ - **front-end**: Está o front-end completo
+
 ## 🧠 Funcionalidades
 
 ### 👤 Autenticação
